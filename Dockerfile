@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/core/runtime:3.1-focal
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/core/runtime:3.1-focal-arm64v8
+
 RUN apt update && apt install unzip curl
 RUN curl -o AskMrRobotClient.zip https://static.askmrrobot.com/wowsite/client/AskMrRobotClient-universal-1605.zip
 RUN unzip -d / AskMrRobotClient.zip
