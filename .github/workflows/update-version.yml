@@ -1,0 +1,41 @@
+name: Update Version
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+
+jobs:
+  get-version:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.PAT }}
+        fetch-depth: 1
+
+    - name: Fetch new app versions
+      run: |
+        if test -f "./latest-version.sh"; then     
+            version=$(bash "./latest-version.sh")
+            if [[ ! -z "${version}" || "${version}" != "null" ]]; then
+              echo "${version}" | tee "./VERSION" > /dev/null
+              echo "${app} ${version}"
+            fi
+          fi
+
+    - name: Add, commit and push to applications version file
+      run: |
+        if [[ -n $(git status --porcelain) ]]; then
+          version=$(cat ./VERSION)
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git add -A
+          git commit -sam "chore: add new release version" || exit 0
+          git tag v${version} HEAD -m "v${version}"
+          git push
+        fi
