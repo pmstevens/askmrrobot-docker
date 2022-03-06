@@ -46,7 +46,6 @@ jobs:
             git branch
             git add -A
             git commit -sam "chore: add new release version" || exit 0
-            git push
             git tag v${version} HEAD -m "v${version}"
-            git push origin v${version}
+            git push --tags
           fi
