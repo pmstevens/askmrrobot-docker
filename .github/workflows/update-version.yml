@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch new app versions
         run: |
@@ -36,6 +36,7 @@ jobs:
             fi
 
       - name: Add, commit and push to applications version file
+        uses: actions/checkout@v3
         run: |
           if [[ -n $(git status --porcelain) ]]; then
             version=$(cat ./VERSION)
