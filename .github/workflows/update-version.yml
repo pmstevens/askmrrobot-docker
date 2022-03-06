@@ -43,6 +43,7 @@ jobs:
             version=$(cat ./VERSION)
             git config user.name "$GITHUB_ACTOR"
             git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+            git branch
             git add -A
             git commit -sam "chore: add new release version" || exit 0
             git tag v${version} HEAD -m "v${version}"
