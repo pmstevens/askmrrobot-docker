@@ -8,34 +8,41 @@ name: Update Version
 on:
   schedule:
     - cron: "0 */4 * * *"
+  workflow_dispatch:
+    
 
 jobs:
   get-version:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
     steps:
-    - uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
-        fetch-depth: 1
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Fetch new app versions
-      run: |
-        if test -f "./latest-version.sh"; then     
-            version=$(bash "./latest-version.sh")
-            if [[ ! -z "${version}" || "${version}" != "null" ]]; then
-              echo "${version}" | tee "./VERSION" > /dev/null
-              echo "${app} ${version}"
+      - name: Fetch new app versions
+        run: |
+          if test -f "./latest-version.sh"; then     
+              version=$(bash "./latest-version.sh")
+              if [[ ! -z "${version}" || "${version}" != "null" ]]; then
+                echo "${version}" | tee "./VERSION" > /dev/null
+                echo "${app} ${version}"
+              fi
             fi
-          fi
 
-    - name: Add, commit and push to applications version file
-      run: |
-        if [[ -n $(git status --porcelain) ]]; then
-          version=$(cat ./VERSION)
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git add -A
-          git commit -sam "chore: add new release version" || exit 0
-          git tag v${version} HEAD -m "v${version}"
-          git push
-        fi
+      - name: Add, commit and push to applications version file
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            version=$(cat ./VERSION)
+            git config user.name "$GITHUB_ACTOR"
+            git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+            git add -A
+            git commit -sam "chore: add new release version" || exit 0
+            git tag v${version} HEAD -m "v${version}"
+            git push
+          fi
